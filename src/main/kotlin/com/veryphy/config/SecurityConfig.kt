@@ -43,6 +43,7 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/users/login").permitAll()
                     .requestMatchers("/verifications/public/**").permitAll()
                     .requestMatchers("/actuator/health").permitAll()
                     // Allow Swagger UI and API docs

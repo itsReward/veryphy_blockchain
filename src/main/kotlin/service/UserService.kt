@@ -124,6 +124,20 @@ class UserService(
             throw RuntimeException("Username already exists")
         }
 
+        if (!userRepository.findByUsername("admin").isPresent) {
+            // Create new user
+            val userEntity = com.veryphy.model.UserEntity(
+                username = "admin",
+                password = passwordEncoder.encode("@Admin0000"),
+                email = "admin@veryphy.com",
+                fullName = "Reward Moyo",
+                role = UserRole.ADMIN,
+                accountStatus = "ACTIVE"
+            )
+            userRepository.save(userEntity)
+        }
+
+
         // Create new user
         val userEntity = com.veryphy.model.UserEntity(
             username = username,
