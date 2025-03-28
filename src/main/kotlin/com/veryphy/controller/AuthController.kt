@@ -13,13 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+/*
 @RestController
 @RequestMapping("/auth")
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val jwtTokenProvider: JwtTokenProvider,
     private val userService: UserService
-) {
+)
+{
 
     @PostMapping("/login")
     fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
@@ -43,4 +45,4 @@ class AuthController(
             throw RuntimeException("Invalid username/password supplied")
         }
     }
-}
+}*/
