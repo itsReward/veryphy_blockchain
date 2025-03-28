@@ -1,6 +1,7 @@
 package com.veryphy.model
 
 import jakarta.persistence.*
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 /**
@@ -26,7 +27,7 @@ data class University(
     val address: String,
 
     @Column(nullable = false)
-    val stakeAmount: Double,
+    val stakeAmount: BigDecimal,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

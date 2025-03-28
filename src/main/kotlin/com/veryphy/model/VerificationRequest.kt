@@ -1,6 +1,8 @@
 package com.veryphy.model
 
 import jakarta.persistence.*
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 /**
  * Verification request entity
@@ -19,8 +21,8 @@ data class VerificationRequest(
     val employerId: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "degree_id", nullable = false)
-    val degree: Degree,
+    @JoinColumn(name = "degree_id", nullable = true)
+    val degree: Degree? = null,
 
     @Column(nullable = false)
     val requestDate: LocalDateTime = LocalDateTime.now(),
@@ -39,7 +41,7 @@ data class VerificationRequest(
     var completedAt: LocalDateTime? = null,
 
     @Column(nullable = false)
-    val paymentAmount: Double,
+    val paymentAmount: BigDecimal,
 
     @Column
     var paymentStatus: String = "PENDING"

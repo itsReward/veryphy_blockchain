@@ -1,8 +1,7 @@
 package com.veryphy.service
 
 import com.veryphy.blockchain.BlockchainService
-import com.veryphy.model.Degree
-import com.veryphy.model.DegreeStatus
+import com.veryphy.blockchain.RealBlockchainService
 import com.veryphy.model.VerificationRequest
 import com.veryphy.model.VerificationResult
 import com.veryphy.repository.DegreeRepository
@@ -12,6 +11,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
@@ -28,7 +28,7 @@ class VerificationService(
      * Create a verification request for a degree by hash
      */
     @Transactional
-    fun createVerificationByHash(employerId: String, degreeHash: String, paymentAmount: Double): VerificationRequest {
+    fun createVerificationByHash(employerId: String, degreeHash: String, paymentAmount: BigDecimal): VerificationRequest {
         logger.info { "Creating verification request for degree hash: $degreeHash by employer: $employerId" }
 
         // Verify the degree
@@ -74,7 +74,7 @@ class VerificationService(
      * Create a verification request for a degree by certificate image
      */
     @Transactional
-    fun createVerificationByCertificate(employerId: String, certificateImage: ByteArray, paymentAmount: Double): VerificationRequest {
+    fun createVerificationByCertificate(employerId: String, certificateImage: ByteArray, paymentAmount: BigDecimal): VerificationRequest {
         logger.info { "Creating verification request from certificate by employer: $employerId" }
 
         // Verify the certificate

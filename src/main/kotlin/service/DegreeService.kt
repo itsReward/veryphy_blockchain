@@ -2,10 +2,11 @@ package com.veryphy.service
 
 import com.veryphy.ai.AIService
 import com.veryphy.blockchain.BlockchainService
+import com.veryphy.blockchain.MockRealBlockchainService
+import com.veryphy.blockchain.RealBlockchainService
 import com.veryphy.certificate.CertificateGenerator
 import com.veryphy.model.Degree
 import com.veryphy.model.DegreeStatus
-import com.veryphy.model.University
 import com.veryphy.repository.DegreeRepository
 import com.veryphy.repository.UniversityRepository
 import mu.KotlinLogging
@@ -70,7 +71,7 @@ class DegreeService(
             if (certificateResult.success) {
                 // Update certificate URL and pattern data
                 savedDegree.certificateUrl = certificateResult.filePath
-                savedDegree.patternData = certificateResult.patternData?.toString(Charsets.UTF_8)
+                savedDegree.patternData = certificateResult.patternData
 
                 // Update status to VERIFIED
                 savedDegree.status = DegreeStatus.VERIFIED
@@ -127,9 +128,9 @@ class DegreeService(
                 val degree = degreeOptional.get()
 
                 // Verify on blockchain
-                val blockchainResult = blockchainService.verifyDegree(degree.degreeHash)
+                val blockchainResultDto = blockchainService.verifyDegree(degreeHash)
 
-                if (blockchainResult.isValid) {
+                if (blockchainResultDto.isValid) {
                     return VerificationResult(
                         isValid = true,
                         degree = degree,
@@ -139,14 +140,14 @@ class DegreeService(
                     return VerificationResult(
                         isValid = false,
                         degree = degree,
-                        message = "Degree verification failed on blockchain: ${blockchainResult.message}"
+                        message = "Degree verification failed on blockchain: ${blockchainResultDto.message}"
                     )
                 }
             } else {
                 // Check blockchain directly
-                val blockchainResult = blockchainService.verifyDegree(degreeHash)
+                val blockchainResultDto = blockchainService.verifyDegree(degreeHash)
 
-                return if (blockchainResult.isValid) {
+                return if (blockchainResultDto.isValid) {
                     VerificationResult(
                         isValid = true,
                         degree = null,

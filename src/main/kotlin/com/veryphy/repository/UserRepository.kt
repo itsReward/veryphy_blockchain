@@ -22,5 +22,5 @@ interface UserRepository : JpaRepository<UserEntity, Long> {
     fun findByUniversityId(@Param("universityId") universityId: Long): List<UserEntity>
 
     @Query("SELECT u FROM UserEntity u WHERE u.employerId = :employerId")
-    fun findByEmployerId(@Param("employerId") String): List<UserEntity>
+    fun findByEmployerId(@Param("employerId") employeerId: String): List<UserEntity>
 }

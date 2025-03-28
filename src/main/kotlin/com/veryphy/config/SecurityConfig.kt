@@ -45,6 +45,10 @@ class SecurityConfig(
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/verifications/public/**").permitAll()
                     .requestMatchers("/actuator/health").permitAll()
+                    // Allow Swagger UI and API docs
+                    .requestMatchers("/swagger-ui.html").permitAll()
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/api-docs/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
@@ -54,4 +58,6 @@ class SecurityConfig(
 
     @Bean
     fun jwtAuthenticationFilter(): JwtAuthenticationFilter = JwtAuthenticationFilter(jwtTokenProvider)
+
+
 }

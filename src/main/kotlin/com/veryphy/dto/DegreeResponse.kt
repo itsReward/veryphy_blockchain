@@ -1,6 +1,6 @@
 package com.veryphy.dto
 
-import com.tukio.veryphy.model.DegreeStatus
+import com.veryphy.model.DegreeStatus
 
 /**
  * Degree response model

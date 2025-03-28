@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.math.BigDecimal
 import java.util.*
 
 @RestController
@@ -26,22 +27,24 @@ class VerificationController(private val verificationService: VerificationServic
         val employerId = user.entityId ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
 
         // Default payment amount - in a real system this would be based on pricing model
-        val paymentAmount = 10.0
+        val paymentAmount = BigDecimal(10.0)
 
         val verificationRequest = verificationService.createVerificationByHash(employerId, degreeHash, paymentAmount)
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-            VerificationResponse(
-                id = verificationRequest.requestId,
-                degreeHash = verificationRequest.degree.degreeHash,
-                studentId = verificationRequest.degree.studentId,
-                degreeName = verificationRequest.degree.degreeName,
-                universityName = verificationRequest.degree.university.name,
-                issueDate = verificationRequest.degree.issueDate.toString(),
-                verified = verificationRequest.result == VerificationResult.AUTHENTIC,
-                message = verificationRequest.verificationDetails ?: "",
-                timestamp = Date()
-            )
+            verificationRequest.degree?.let {
+                VerificationResponse(
+                    id = verificationRequest.requestId,
+                    degreeHash = it.degreeHash,
+                    studentId = verificationRequest.degree.studentId,
+                    degreeName = verificationRequest.degree.degreeName,
+                    universityName = verificationRequest.degree.university.name,
+                    issueDate = verificationRequest.degree.issueDate.toString(),
+                    verified = verificationRequest.result == VerificationResult.AUTHENTIC,
+                    message = verificationRequest.verificationDetails ?: "",
+                    timestamp = Date()
+                )
+            }
         )
     }
 
@@ -55,7 +58,7 @@ class VerificationController(private val verificationService: VerificationServic
         val employerId = user.entityId ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
 
         // Default payment amount
-        val paymentAmount = 10.0
+        val paymentAmount: BigDecimal = BigDecimal(10.0)
 
         val verificationRequest = verificationService.createVerificationByCertificate(
             employerId,
@@ -203,7 +206,7 @@ class VerificationController(private val verificationService: VerificationServic
     fun publicVerifyDegree(@RequestParam degreeHash: String): ResponseEntity<Map<String, Any>> {
         // Use a generic employer ID for public verifications
         val publicEmployerId = "PUBLIC-VERIFIER"
-        val paymentAmount = 0.0 // Free for public verifications
+        val paymentAmount = BigDecimal(0.0 )// Free for public verifications
 
         val verificationRequest = verificationService.createVerificationByHash(publicEmployerId, degreeHash, paymentAmount)
 

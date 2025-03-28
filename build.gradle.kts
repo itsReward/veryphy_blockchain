@@ -13,11 +13,8 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     // Hyperledger Fabric repositories
-    maven { url = uri("https://hyperledger.jfrog.io/artifactory/fabric") }
-    maven { url = uri("https://jitpack.io") }
-    // Add Nexus repository for chaincode Java libraries
-    maven { url = uri("https://nexus.hyperledger.org/content/repositories/releases") }
-    // Add JitPack repository which hosts some Fabric related libraries
+    maven { url = uri("https://hyperledger.jfrog.io/hyperledger/fabric-maven") }
+    maven { url = uri("https://hyperledger.jfrog.io/hyperledger/fabric-gateway-maven") }
     maven { url = uri("https://jitpack.io") }
 }
 
@@ -44,7 +41,7 @@ dependencies {
     implementation("org.hyperledger.fabric:fabric-gateway-java:2.2.0")
     implementation("org.hyperledger.fabric-sdk-java:fabric-sdk-java:2.2.0")
     implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.2.0")
-    implementation("org.hyperledger.fabric:fabric-contract-api:2.2.0")
+    //implementation("org.hyperledger.fabric:fabric-contract-api:2.2.0")
 
     // AI & Image Processing
     implementation("org.tensorflow:tensorflow-core-platform:0.5.0")
@@ -72,6 +69,10 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // If you are using Jackson for JSON processing
 
+    // Swagger/OpenAPI 3.0 dependencies
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+    implementation("org.springdoc:springdoc-openapi-starter-common:2.2.0")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.7.0")
 }
 
 java {
