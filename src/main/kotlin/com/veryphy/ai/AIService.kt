@@ -6,21 +6,20 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.tensorflow.Graph
 import org.tensorflow.Session
-import org.tensorflow.Tensor
 import org.tensorflow.op.Ops
 import org.tensorflow.types.TFloat32
+import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.security.MessageDigest
 import java.util.*
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import javax.imageio.ImageIO
-import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.security.MessageDigest
 import kotlin.experimental.and
 
 private val logger = KotlinLogging.logger {}
@@ -39,18 +38,21 @@ class AIService(
             // Load TensorFlow model
             graph = Graph()
             val modelBytes = Files.readAllBytes(Paths.get(modelPath))
-            graph.importGraphDef(modelBytes)
-            session = Session(graph)
 
+            // Use the correct GraphDef class that matches your TensorFlow version
+            val graphDef = org.tensorflow.proto.framework.GraphDef.parseFrom(modelBytes)
+            graph.importGraphDef(graphDef)
+
+            session = Session(graph)
             logger.info { "AI model loaded successfully" }
         } catch (e: Exception) {
             logger.error(e) { "Failed to load AI model" }
             // Create default graph if model loading fails
             graph = Graph()
             val tf = Ops.create(graph)
-            val placeholder = tf.placeholder(TFloat32.class)
-                    tf.identity(placeholder)
-                    session = Session(graph)
+            val placeholder = tf.placeholder(TFloat32::class.java)
+            tf.identity(placeholder)
+            session = Session(graph)
         }
     }
 
@@ -158,7 +160,7 @@ class AIService(
 
             // Use TensorFlow to decode the pattern
             val tf = Ops.create(graph)
-            val inputTensor = Tensor.create(extractedPattern)
+           // val inputTensor = Tensor.create(extractedPattern)
 
             // In a real implementation, you would run inference using the loaded model
             // For demonstration, we'll use a simpler approach to extract the hash

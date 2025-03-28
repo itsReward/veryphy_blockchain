@@ -5,16 +5,11 @@ import com.itextpdf.kernel.events.Event
 import com.itextpdf.kernel.events.IEventHandler
 import com.itextpdf.kernel.events.PdfDocumentEvent
 import com.itextpdf.kernel.font.PdfFontFactory
-import com.itextpdf.kernel.geom.Rectangle
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfReader
 import com.itextpdf.kernel.pdf.PdfWriter
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas
-import com.itextpdf.kernel.pdf.extgstate.PdfExtGState
-import com.itextpdf.kernel.pdf.xobject.PdfFormXObject
 import com.itextpdf.layout.Canvas
 import com.itextpdf.layout.Document
-import com.itextpdf.layout.element.Image
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Text
 import com.itextpdf.layout.properties.TextAlignment
@@ -192,32 +187,23 @@ class CertificateGenerator(
             val pageSize = page.pageSize
 
             // Create PdfCanvas for watermark
-            val canvas = PdfCanvas(page)
-            canvas.saveState()
-
-            // Set transparency
-            val gs1 = PdfExtGState()
-            gs1.fillOpacity = 0.1f
-            canvas.setExtGState(gs1)
+            val canvas = Canvas(page, pageSize)
+            val paragraph = Paragraph(watermarkText)
 
             // Add watermark text diagonally
             val font = PdfFontFactory.createFont("fonts/times-bold.ttf")
-            canvas.beginText()
-                .setFontAndSize(font, 60f)
-                .setColor(ColorConstants.LIGHT_GRAY, 0.1f)
-                .setTextMatrix(1f, 0f, 0f, 1f, 0f, 0f)
+            canvas.setFontColor(ColorConstants.LIGHT_GRAY, 0.1f)
+                .setFont(font)
+                .setFontSize(60f)
                 .showTextAligned(
-                    watermarkText,
+                    paragraph,
                     pageSize.width / 2,
                     pageSize.height / 2,
-                    45f,
+                    45,
                     TextAlignment.CENTER,
                     VerticalAlignment.MIDDLE,
                     0f
                 )
-                .endText()
-
-            canvas.restoreState()
         }
     }
 

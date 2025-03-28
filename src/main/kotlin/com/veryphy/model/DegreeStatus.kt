@@ -1,5 +1,5 @@
 package com.veryphy.model
 
 enum class DegreeStatus {
-    REGISTERED, PROCESSING, VERIFIED
+    REGISTERED, PROCESSING, VERIFIED, REVOKED
 }

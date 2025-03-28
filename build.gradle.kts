@@ -15,6 +15,10 @@ repositories {
     // Hyperledger Fabric repositories
     maven { url = uri("https://hyperledger.jfrog.io/artifactory/fabric") }
     maven { url = uri("https://jitpack.io") }
+    // Add Nexus repository for chaincode Java libraries
+    maven { url = uri("https://nexus.hyperledger.org/content/repositories/releases") }
+    // Add JitPack repository which hosts some Fabric related libraries
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -39,6 +43,8 @@ dependencies {
     // Hyperledger Fabric SDK
     implementation("org.hyperledger.fabric:fabric-gateway-java:2.2.0")
     implementation("org.hyperledger.fabric-sdk-java:fabric-sdk-java:2.2.0")
+    implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.2.0")
+    implementation("org.hyperledger.fabric:fabric-contract-api:2.2.0")
 
     // AI & Image Processing
     implementation("org.tensorflow:tensorflow-core-platform:0.5.0")
@@ -60,6 +66,12 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.13.7")
+
+    //Json
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5") // Or the latest version
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // If you are using Jackson for JSON processing
+
 }
 
 java {

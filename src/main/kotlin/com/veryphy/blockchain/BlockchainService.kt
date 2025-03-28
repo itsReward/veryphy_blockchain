@@ -41,22 +41,75 @@ class BlockchainService(
 
             // Configure the gateway connection
             val wallet = Wallets.newInMemoryWallet()
-            val adminIdentity = Identities.newX509Identity("Org1MSP", Files.newInputStream(Paths.get("admin.cert")), Files.newInputStream(Paths.get("admin.key")))
-            wallet.put(adminUsername, adminIdentity)
 
-            // Connect to the gateway
-            val builder = Gateway.createBuilder()
-                .identity(wallet, adminUsername)
-                .networkConfig(connectionProfilePath)
-                .discovery(true)
+            // Initialize BouncyCastle provider if not already registered
+            if (java.security.Security.getProvider("BC") == null) {
+                java.security.Security.addProvider(org.bouncycastle.jce.provider.BouncyCastleProvider())
+            }
 
-            gateway = builder.connect()
-            network = gateway.getNetwork(channelName)
-            contract = network.getContract(chaincodeName)
+            // Load the certificate and private key from files
+            val certFile = Files.newInputStream(Paths.get("admin.cert"))
+            val keyFile = Files.newInputStream(Paths.get("admin.key"))
 
-            logger.info { "Successfully connected to blockchain network" }
+            try {
+                // Convert the certificate input stream to X509Certificate
+                val certFactory = java.security.cert.CertificateFactory.getInstance("X.509")
+                val certificate = certFactory.generateCertificate(certFile) as java.security.cert.X509Certificate
+
+                // Convert the key input stream to PrivateKey
+                val keyReader = java.io.InputStreamReader(keyFile)
+                val pemReader = org.bouncycastle.openssl.PEMParser(keyReader)
+                val pemObject = pemReader.readObject()
+
+                val privateKey: java.security.PrivateKey = when (pemObject) {
+                    is org.bouncycastle.openssl.PEMKeyPair -> {
+                        val converter = org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter()
+                            .setProvider("BC")
+                        converter.getPrivateKey(pemObject.privateKeyInfo)
+                    }
+                    is org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo -> {
+                        // Create the correct InputDecryptorProvider for PKCS8
+                        val decryptorProvider = org.bouncycastle.pkcs.jcajce.JcePKCSPBEInputDecryptorProviderBuilder()
+                            .setProvider("BC")
+                            .build(adminPassword.toCharArray())
+
+                        // Decrypt and convert to private key
+                        val privateKeyInfo = pemObject.decryptPrivateKeyInfo(decryptorProvider)
+                        val converter = org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter()
+                            .setProvider("BC")
+                        converter.getPrivateKey(privateKeyInfo)
+                    }
+                    is org.bouncycastle.asn1.pkcs.PrivateKeyInfo -> {
+                        val converter = org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter()
+                            .setProvider("BC")
+                        converter.getPrivateKey(pemObject)
+                    }
+                    else -> throw IllegalArgumentException("Unsupported private key format: ${pemObject?.javaClass?.name}")
+                }
+
+                // Create the identity with the converted certificate and key
+                val adminIdentity = Identities.newX509Identity("Org1MSP", certificate, privateKey)
+                wallet.put(adminUsername, adminIdentity)
+
+                // Connect to the gateway
+                val builder = Gateway.createBuilder()
+                    .identity(wallet, adminUsername)
+                    .networkConfig(connectionProfilePath)
+                    .discovery(true)
+
+                gateway = builder.connect()
+                network = gateway.getNetwork(channelName)
+                contract = network.getContract(chaincodeName)
+
+                logger.info { "Successfully connected to blockchain network" }
+            } finally {
+                // Close the streams
+                certFile.close()
+                keyFile.close()
+            }
         } catch (e: Exception) {
-            logger.error(e) { "Failed to initialize blockchain connection" }
+            logger.error(e) { "Failed to initialize blockchain connection: ${e.message}" }
+            e.printStackTrace()
             throw RuntimeException("Failed to initialize blockchain connection", e)
         }
     }

@@ -1,7 +1,7 @@
 package com.veryphy.client
 
-import com.tukio.veryphy.exception.FabricConnectionException
-import com.tukio.veryphy.exception.FabricTransactionException
+import com.veryphy.exception.FabricConnectionException
+import com.veryphy.exception.FabricTransactionException
 import org.hyperledger.fabric.gateway.*
 import org.slf4j.LoggerFactory
 import java.nio.file.Path

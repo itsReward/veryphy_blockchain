@@ -267,28 +267,37 @@ class DegreeAttestationChaincode : ContractInterface {
         val historyIterator = stub.getHistoryForKey(degreeCompositeKey.toString())
         val history = mutableListOf<DegreeHistory>()
 
-        while (historyIterator.hasNext()) {
-            val modification = historyIterator.next()
-            val timestamp = if (modification.timestamp != null) Date(modification.timestamp.seconds * 1000).toString() else "N/A"
+        // Fabric iterators have different methods than standard Java iterators
+        try {
+            while (historyIterator.iterator().hasNext()) {
+                val modification = historyIterator.iterator().next()
+                val timestamp = if (modification.getTimestamp() != null)
+                    Date(modification.getTimestamp().epochSecond * 1000).toString()
+                else
+                    "N/A"
 
-            if (modification.isDeleted) {
-                history.add(DegreeHistory(
-                    txId = modification.txId,
-                    timestamp = timestamp,
-                    degreeId = degreeId,
-                    status = "DELETED",
-                    action = "DELETE"
-                ))
-            } else {
-                val historyDegree = objectMapper.readValue(modification.value, Degree::class.java)
-                history.add(DegreeHistory(
-                    txId = modification.txId,
-                    timestamp = timestamp,
-                    degreeId = degreeId,
-                    status = historyDegree.status,
-                    action = "UPDATE"
-                ))
+                if (modification.isDeleted()) {
+                    history.add(DegreeHistory(
+                        txId = modification.getTxId(),
+                        timestamp = timestamp,
+                        degreeId = degreeId,
+                        status = "DELETED",
+                        action = "DELETE"
+                    ))
+                } else {
+                    val historyDegree = objectMapper.readValue(modification.getValue(), Degree::class.java)
+                    history.add(DegreeHistory(
+                        txId = modification.getTxId(),
+                        timestamp = timestamp,
+                        degreeId = degreeId,
+                        status = historyDegree.status,
+                        action = "UPDATE"
+                    ))
+                }
             }
+        } finally {
+            // Always close the iterator to release resources
+            historyIterator.close()
         }
 
         return objectMapper.writeValueAsString(history)
